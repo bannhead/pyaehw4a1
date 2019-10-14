@@ -51,6 +51,8 @@ class AehW4a1:
         self._read_value(command, socket)
 
     def _read_command(self, command, socket):
+        if(command == ReadCommand.status):
+            return self._read_byte(command, socket)
         if(command == ReadCommand.exhaustTemperature or
            command == ReadCommand.outdoorTemperature or
            command == ReadCommand.extractTemperature or

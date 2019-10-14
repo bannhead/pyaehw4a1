@@ -4,7 +4,7 @@ from . import aehw4a1
 from .commands import UpdateCommand
 
 def main():
-    parser = argparse.ArgumentParser("pydanfossair")
+    parser = argparse.ArgumentParser("aehw4a1")
     parser.add_argument("--host", action="store", required=True)
     parser.add_argument("--command", action="store", required=False)
 
