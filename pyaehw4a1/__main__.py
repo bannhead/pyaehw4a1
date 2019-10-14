@@ -1,5 +1,6 @@
 import argparse
-from . import danfossclient
+
+from . import aehw4a1
 from .commands import UpdateCommand
 
 def main():
@@ -9,7 +10,7 @@ def main():
 
     args = parser.parse_args()
 
-    client = danfossclient.DanfossClient(args.host)
+    client = aehw4a1.AehW4a1(args.host)
 
     if args.command is not None:
         if args.command == "boost_on":
