@@ -1,4 +1,4 @@
-# pyaeh-w4a1
+# pyaehw4a1
 Python module and client for Hisense AEH-W4A1 wifi module 
 
 ## Usage
