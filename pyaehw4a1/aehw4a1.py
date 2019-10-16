@@ -20,7 +20,7 @@ class AehW4a1:
             for pointer_to_enum in UpdateCommand:
                 if command == pointer_to_enum.name:
                     return self._update_command(pointer_to_enum, socket)
-        else:
+        else:   # call from read_all()
             if command.name in ReadCommand.__dict__:
                 return self._read_command(command, socket)
 
