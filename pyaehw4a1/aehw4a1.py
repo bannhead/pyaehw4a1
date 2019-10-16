@@ -1,10 +1,12 @@
 import sys
+import json
 from socket import socket
 from socket import AF_INET
 from socket import SOCK_STREAM
 from .commands import ReadCommand
 from .commands import UpdateCommand
-from .commands import ResponsePacket
+from .responses import ResponsePacket
+from .responses import Data_102_0
 
 class AehW4a1:
     def __init__(self, host):
@@ -39,23 +41,23 @@ class AehW4a1:
     def _update_command(self, command, socket):
         bytes_string = self._send_recv_packet(command, socket)
                 
-        # Check starting bytes
-        if bytes_string != ResponsePacket.correct_101_0.value:
+        compare_length = (len(ResponsePacket.correct_101_0.value))
+        if bytes_string[:int(compare_length)] != ResponsePacket.correct_101_0.value:
             raise Exception("Wrong 101_0 response")
             
-        return True
+        return self.command(ReadCommand.status_102_0)
 
     def _read_command(self, command, socket):
         bytes_string = self._send_recv_packet(command, socket)
         
-        # Check starting bytes
-        compare_length = (sys.getsizeof(ResponsePacket.correct_102_0_start) / 2)
-        if bytes_string[:int(compare_length)] != ResponsePacket.correct_102_0_start.value:
+        compare_length = (len(ResponsePacket.correct_102_0.value))
+        if bytes_string[:int(compare_length)] != ResponsePacket.correct_102_0.value:
             raise Exception("Wrong 102_0 response")
             
         binary_string = "{:08b}".format(int(bytes_string.hex(),16))
-            
-        return binary_string
+        result = self._bits_value(binary_string[(compare_length * 8):])
+        
+        return result
 
     def _send_recv_packet(self, command, socket):
         with socket(AF_INET, SOCK_STREAM) as s:
@@ -65,4 +67,12 @@ class AehW4a1:
             s.close()
             
         return result
+    
+    def _bits_value(self, string):
+        result = {}
+
+        for field in Data_102_0:
+            result[field.name] = string[(field.offset - 1):(field.offset + field.length - 1)]
+        
+        return json.dumps(result)
 
