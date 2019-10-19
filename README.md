@@ -35,7 +35,7 @@ Python module and client for Hisense AEH-W4A1 wifi module
 I am NOT a programmer and this is my first attempt to write in Python!
 So, it comes with ABSOLUTELY NO WARRANTY!!!
 
-I started this work to implement support to my Hisense multi splip AC
+I started this work to implement support for my Hisense multi splip AC
 in Home Assistant... This is the first part.
 
 The module Hisense AEH-W4A1 uses a serial protocol called XM, sending
