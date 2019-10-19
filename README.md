@@ -1,12 +1,13 @@
 # pyaehw4a1
 Python module and client for Hisense AEH-W4A1 wifi module 
 
+
 ## Usage
-### Read all commands
-	python -m pyaehw4a1 --host IP_ADDRESS
+### Read status
+    python -m pyaehw4a1 --host IP_ADDRESS
 
 ### Send update command
-	python -m pyaehw4a1 --host IP_ADDRESS --command COMMAND
+    python -m pyaehw4a1 --host IP_ADDRESS --command COMMAND
 
 ## Supported commands
 - on
@@ -14,6 +15,7 @@ Python module and client for Hisense AEH-W4A1 wifi module
 - mode_(cool, heat, fan, dry)
 - speed_(mute, low, med, max, auto)
 - temp_$1_C ($1 from 16 to 32)
+- temp_$1_F ($1 from 61 to 90)
 - turbo_on
 - turbo_off
 - energysave_on
@@ -25,6 +27,25 @@ Python module and client for Hisense AEH-W4A1 wifi module
 - vert_swing
 - hor_dir
 - hor_swing
+- temp_to_F
+- temp_to_C
 
 
-Heavily based on https://github.com/JonasPed/pydanfoss-air work!
+## Note
+    I am NOT a programmer and this is my first attempt to write in Python!
+    So, it comes with ABSOLUTELY NO WARRANTY!!!
+    
+    I started this work to implement support to my Hisense multi splip AC
+    in Home Assistant... This is the first part.
+    
+    The module Hisense AEH-W4A1 uses a serial protocol called XM, sending
+    AT+XMV command my AC reports v4.4.6;
+    on https://github.com/htqwe22/device I found some specifications on
+    v3.2.6 and on https://github.com/cgdgithub/ControlJavaEdition I found
+    the official protocol implementation but sadly without protocol
+    specifications.
+    
+    If you have updated information, please send it to me!
+
+    My template is https://github.com/JonasPed/pydanfoss-air code.
+    Many thanks to the author!

@@ -1,5 +1,11 @@
 from enum import Enum
 
+'''
+Based on XM rev.3.2.6 from
+https://github.com/htqwe22/device/blob/96f355b12da33c1c187f9d31cace1b02abcf2446/src/protocol/protocol.h
+
+Testing AC (multi split unit) has XM rev 4.4.6
+'''
 
 class ResponsePacket(Enum):
     correct_3_0 = bytes([
