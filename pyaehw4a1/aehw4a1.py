@@ -1,5 +1,7 @@
 import sys
 import json
+import threading
+import ipaddress
 from socket import socket
 from socket import AF_INET
 from socket import SOCK_STREAM
@@ -7,12 +9,16 @@ from .commands import ReadCommand
 from .commands import UpdateCommand
 from .responses import ResponsePacket
 from .responses import DataPacket
+import ifaddr
 
 class AehW4a1:
     def __init__(self, host):
         self._host = host
 
     def command(self, command):
+        if not self._host:
+            raise Exception("Host required")
+        
         for name, member in ReadCommand.__members__.items():
             if command == name:
 
@@ -60,7 +66,9 @@ class AehW4a1:
 
     def _send_recv_packet(self, command, socket):
         with socket(AF_INET, SOCK_STREAM) as s:
+            s.settimeout(1)
             s.connect((self._host, 8888))
+            s.settimeout(None)
             s.send(command.value)
             result = s.recv(100)
             s.close()
@@ -100,3 +108,46 @@ class AehW4a1:
                 return len(response_packet.value)
 
         return False
+
+    def _check(self, ip):
+        with socket(AF_INET, SOCK_STREAM) as s:
+            try:
+                s.settimeout(0.05)
+                s.connect((ip, 8888))
+                s.settimeout(None)
+
+            except OSError as e:
+                if e.args[0] == "timed out":
+                    return None
+                else:
+                    return "Error"
+
+            s.send(bytes("AT+XMV", 'utf-8'))
+            result = s.recv(13)
+            s.close()
+
+        return result
+
+    def discovery(self):
+        nets = []
+        adapters = ifaddr.get_adapters()
+        for adapter in adapters:
+            for ip in adapter.ips:
+                if ip.is_IPv4 and ip.ip != "127.0.0.1":
+                    nets.append(ipaddress.IPv4Network("{0}/{1}".format(ip.ip, ip.network_prefix), strict=False))
+
+        if not nets:
+            return None
+        
+        acs = []
+        for net in nets:
+            for ip in net:
+                test = self._check(str(ip))
+                if test == "Error":
+                    break
+                elif test:
+                    acs.append(str(ip))
+            if acs:
+                break
+
+        return acs

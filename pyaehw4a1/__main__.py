@@ -7,7 +7,7 @@ from .commands import ReadCommand
 
 def main():
     parser = argparse.ArgumentParser("aehw4a1")
-    parser.add_argument("--host", action="store", required=True)
+    parser.add_argument("--host", action="store", required=False)
     parser.add_argument("--command", action="store", required=False)
 
     args = parser.parse_args()
@@ -22,6 +22,8 @@ def main():
     if command in ReadCommand.__dict__ or command in UpdateCommand.__dict__:
         parsed = json.loads(client.command(command))
         print("AC",args.host,command,":\n",json.dumps(parsed, indent=4, sort_keys=False))
+    elif command == "discovery":
+        print(client.discovery())
     else:
         raise Exception("Unknown command: {0}".format(command))
 

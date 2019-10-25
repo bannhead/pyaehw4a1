@@ -3,6 +3,9 @@ Python module and client for Hisense AEH-W4A1 wifi module
 
 
 ## Usage
+### Intranet discovery
+    python -m pyaehw4a1 --command discovery
+
 ### Read status
     python -m pyaehw4a1 --host IP_ADDRESS
 

@@ -17,7 +17,7 @@ setup(
     author='Davide Varricchio',
     author_email='davide.varricchio@gmail.com',
     license='Apache 2.0',
-    packages=['pyaehw4a1']
+    packages=['pyaehw4a1'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
