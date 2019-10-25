@@ -18,7 +18,7 @@ def main():
     args = parser.parse_args()
 
     if args.choise == "discovery":
-        client = aehw4a1.AehW4a1("Dummy")
+        client = aehw4a1.AehW4a1()
         print(client.discovery())
 
     elif args.choise == "AC":

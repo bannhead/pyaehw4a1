@@ -12,8 +12,11 @@ from .responses import DataPacket
 import ifaddr
 
 class AehW4a1:
-    def __init__(self, host):
-        self._host = host
+    def __init__(self, host=None):
+        if host is None:
+            self._host = None
+        else:
+            self._host = host
 
     def command(self, command):
         if not self._host:
