@@ -2,6 +2,7 @@ import sys
 import json
 import threading
 import ipaddress
+from queue import Queue
 from socket import socket
 from socket import AF_INET
 from socket import SOCK_STREAM
@@ -115,23 +116,28 @@ class AehW4a1:
     def _check(self, ip):
         with socket(AF_INET, SOCK_STREAM) as s:
             try:
-                s.settimeout(0.05)
+                s.settimeout(0.5)
                 s.connect((ip, 8888))
                 s.settimeout(None)
 
             except OSError as e:
-                if e.args[0] == "timed out":
-                    return None
-                else:
-                    return "Error"
+                return None
 
             s.send(bytes("AT+XMV", 'utf-8'))
             result = s.recv(13)
             s.close()
-
+            
         return result
 
-    def discovery(self):
+    def discovery(self, full=None):
+        if full is None:
+            self._full = None
+        elif full == True:
+            self._full = True
+        else:
+            
+            raise Exception("Optional argument for discovery is: True")
+
         nets = []
         adapters = ifaddr.get_adapters()
         for adapter in adapters:
@@ -141,16 +147,35 @@ class AehW4a1:
 
         if not nets:
             return None
-        
+
         acs = []
+        que = Queue()
+        
         for net in nets:
+            q = Queue()
+
+            for x in range(100):
+                t = threading.Thread(target = self._threader, args=(q,que))
+                t.daemon = True
+                t.start()
+                
             for ip in net:
-                test = self._check(str(ip))
-                if test == "Error":
-                    break
-                elif test:
-                    acs.append(str(ip))
-            if acs:
+                q.put(ip)
+
+            q.join()
+            
+            if not que.empty() and not self._full:
                 break
 
+        while not que.empty():
+            acs.append(que.get())
+
         return acs
+
+    def _threader(self, q, que):
+        while True:
+            ip = q.get()
+            test = self._check(str(ip))
+            if test:
+                que.put(str(ip))
+            q.task_done()

@@ -10,16 +10,20 @@ def main():
     subs = parser.add_subparsers()
     subs.required = True
     subs.dest = 'choise'
-    disc_parser = subs.add_parser('discovery', help='Search for ACs')
-    comm_parser = subs.add_parser('AC', help='Run a command on the given AC')
-    comm_parser.add_argument('--host', action='store', required=True)
-    comm_parser.add_argument('--command', '-c', action='store', required=False)
+    disc_parser = subs.add_parser('discovery', help='search for ACs')
+    disc_parser.add_argument('--full', '-f', action='store_const', const=True, required=False,
+                            help='force discovery on every interface')
+    comm_parser = subs.add_parser('AC', help='run a command on the given AC')
+    comm_parser.add_argument('--host', action='store', required=True,
+                            help='IP of AC')
+    comm_parser.add_argument('--command', '-c', action='store', required=False,
+                            help='List on implemented commands on README.md')
 
     args = parser.parse_args()
 
     if args.choise == "discovery":
         client = aehw4a1.AehW4a1()
-        print(client.discovery())
+        print(client.discovery(args.full))
 
     elif args.choise == "AC":
         client = aehw4a1.AehW4a1(args.host)
