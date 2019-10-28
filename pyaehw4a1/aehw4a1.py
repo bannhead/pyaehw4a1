@@ -113,22 +113,6 @@ class AehW4a1:
 
         return False
 
-    def _check(self, ip):
-        with socket(AF_INET, SOCK_STREAM) as s:
-            try:
-                s.settimeout(0.5)
-                s.connect((ip, 8888))
-                s.settimeout(None)
-
-            except OSError as e:
-                return None
-
-            s.send(bytes("AT+XMV", 'utf-8'))
-            result = s.recv(13)
-            s.close()
-            
-        return result
-
     def discovery(self, full=None):
         if full is None:
             self._full = None
@@ -175,7 +159,23 @@ class AehW4a1:
     def _threader(self, q, que):
         while True:
             ip = q.get()
-            test = self._check(str(ip))
+            test = self._check_addr(str(ip))
             if test:
                 que.put(str(ip))
             q.task_done()
+
+    def _check_addr(self, ip):
+        with socket(AF_INET, SOCK_STREAM) as s:
+            try:
+                s.settimeout(0.5)
+                s.connect((ip, 8888))
+                s.settimeout(None)
+
+            except OSError as e:
+                return None
+
+            s.send(bytes("AT+XMV", 'utf-8'))
+            result = s.recv(13)
+            s.close()
+            
+        return result
