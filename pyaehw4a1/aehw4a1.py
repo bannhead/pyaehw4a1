@@ -54,7 +54,8 @@ class AehW4a1:
 
             return self.command("status_102_0")
 
-        raise Exception("Unknown packet type {0}: {1}".format(packet_type, pure_bytes.hex()))
+        raise Exception("Unknown packet type {0}: {1}".format(packet_type,
+                        pure_bytes.hex()))
 
     def _read_command(self, command, socket):
         pure_bytes = self._send_recv_packet(command, socket)
@@ -66,7 +67,8 @@ class AehW4a1:
 
             return result
 
-        raise Exception("Unknown packet type {0}: {1}".format(packet_type, pure_bytes.hex()))
+        raise Exception("Unknown packet type {0}: {1}".format(packet_type,
+                        pure_bytes.hex()))
 
     def _send_recv_packet(self, command, socket):
         with socket(AF_INET, SOCK_STREAM) as s:
@@ -88,11 +90,13 @@ class AehW4a1:
         for data_packet in DataPacket:
             if packet_type in data_packet.name:
                 for field in data_packet.value:
-                    result[field.name] = binary_data[(field.offset - 1):(field.offset + field.length - 1)]
+                    result[field.name] = binary_data[(field.offset - 1):
+                                        (field.offset + field.length - 1)]
 
                 return json.dumps(result)
 
-        raise Exception("Unknown data type {0}: {1}".format(packet_type, binary_data))
+        raise Exception("Unknown data type {0}: {1}".format(packet_type,
+                        binary_data))
 
     def _packet_type(self, string):
         type = int(string[13:14].hex(),16)
@@ -107,7 +111,8 @@ class AehW4a1:
             if packet_type in response_packet.name:
                 if response_packet.value not in pure_bytes:
 
-                    raise Exception("Wrong response for type {0}: {1}".format(packet_type, pure_bytes.hex()))
+                    raise Exception("Wrong response for type {0}: {1}".
+                                    format(packet_type, pure_bytes.hex()))
 
                 return len(response_packet.value)
 
@@ -127,7 +132,8 @@ class AehW4a1:
         for adapter in adapters:
             for ip in adapter.ips:
                 if ip.is_IPv4 and ip.ip != "127.0.0.1":
-                    nets.append(ipaddress.IPv4Network("{0}/{1}".format(ip.ip, ip.network_prefix), strict=False))
+                    nets.append(ipaddress.IPv4Network("{0}/{1}".format(ip.ip,
+                                ip.network_prefix), strict=False))
 
         if not nets:
             return None
@@ -172,10 +178,15 @@ class AehW4a1:
                 s.settimeout(None)
 
             except OSError as e:
+            
                 return None
 
             s.send(bytes("AT+XMV", 'utf-8'))
             result = s.recv(13)
             s.close()
+        
+        if bytes("+XMV:", 'utf-8') not in result:
+        
+            return None
             
         return result
