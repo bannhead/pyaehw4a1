@@ -52,7 +52,7 @@ class AehW4a1:
 
         if self._check_response(packet_type, pure_bytes):
 
-            return self.command("status_102_0")
+            return True
 
         raise Exception("Unknown packet type {0}: {1}".format(packet_type,
                         pure_bytes.hex()))
