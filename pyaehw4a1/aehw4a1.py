@@ -65,7 +65,7 @@ class AehW4a1:
         if data_start_pos:
             result = self._bits_value(packet_type, pure_bytes, data_start_pos)
 
-            return result
+            return json.loads(result)
 
         raise Exception("Unknown packet type {0}: {1}".format(packet_type,
                         pure_bytes.hex()))

@@ -34,11 +34,11 @@ def main():
             command = args.command
 
         if command in ReadCommand.__dict__:
-            parsed = json.loads(client.command(command))
+            parsed = client.command(command)
             print("AC",args.host,command,":\n",json.dumps(parsed, indent=4, sort_keys=False))
         elif command in UpdateCommand.__dict__:
             if client.command(command):
-                parsed = json.loads(client.command("status_102_0"))
+                parsed = client.command("status_102_0")
                 print("AC",args.host,command,":\n",json.dumps(parsed, indent=4, sort_keys=False))
         else:
             raise Exception("Unknown command: {0}".format(command))
