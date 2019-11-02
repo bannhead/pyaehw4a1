@@ -44,7 +44,7 @@ class AehW4a1:
 
                     return self._update_command(member, socket)
 
-        raise Exception("Not yet implemented: {0}".format(command))
+        raise Exception(f"Not yet implemented: {command}")
 
     def _update_command(self, command, socket):
         pure_bytes = self._send_recv_packet(command, socket)
@@ -54,8 +54,9 @@ class AehW4a1:
 
             return True
 
-        raise Exception("Unknown packet type {0}: {1}".format(packet_type,
-                        pure_bytes.hex()))
+        raise Exception(
+            f"Unknown packet type {packet_type}: {pure_bytes.hex()}"
+            )
 
     def _read_command(self, command, socket):
         pure_bytes = self._send_recv_packet(command, socket)
@@ -67,8 +68,9 @@ class AehW4a1:
 
             return json.loads(result)
 
-        raise Exception("Unknown packet type {0}: {1}".format(packet_type,
-                        pure_bytes.hex()))
+        raise Exception(
+            f"Unknown packet type {packet_type}: {pure_bytes.hex()}"
+            )
 
     def _send_recv_packet(self, command, socket):
         with socket(AF_INET, SOCK_STREAM) as s:
@@ -84,7 +86,7 @@ class AehW4a1:
     def _bits_value(self, packet_type, pure_bytes, data_pos):
         result = {}
 
-        binary_string = "{:08b}".format(int(pure_bytes.hex(),16))
+        binary_string = f"{int(pure_bytes.hex(),16):08b}"
         binary_data = binary_string[data_pos*8:-24]
 
         for data_packet in DataPacket:
@@ -95,14 +97,13 @@ class AehW4a1:
 
                 return json.dumps(result)
 
-        raise Exception("Unknown data type {0}: {1}".format(packet_type,
-                        binary_data))
+        raise Exception(f"Unknown data type {packet_type}: {binary_data}")
 
     def _packet_type(self, string):
         type = int(string[13:14].hex(),16)
         sub_type = int(string[14:15].hex(),16)
 
-        result = "{0}_{1}".format(type, sub_type)
+        result = f"{type}_{sub_type}"
 
         return result
 
@@ -111,8 +112,9 @@ class AehW4a1:
             if packet_type in response_packet.name:
                 if response_packet.value not in pure_bytes:
 
-                    raise Exception("Wrong response for type {0}: {1}".
-                                    format(packet_type, pure_bytes.hex()))
+                    raise Exception(
+                        f"Wrong response for type {packet_type}: {pure_bytes.hex()}"
+                        )
 
                 return len(response_packet.value)
 
