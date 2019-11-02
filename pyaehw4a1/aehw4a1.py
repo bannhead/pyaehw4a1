@@ -132,8 +132,15 @@ class AehW4a1:
         for adapter in adapters:
             for ip in adapter.ips:
                 if ip.is_IPv4 and ip.ip != "127.0.0.1":
-                    nets.append(ipaddress.IPv4Network("{0}/{1}".format(ip.ip,
-                                ip.network_prefix), strict=False))
+                    if self._full:
+                        nets.append(
+                            ipaddress.IPv4Network(f"{ip.ip}/{ip.network_prefix}",
+                            strict=False)
+                        )
+                    else:
+                        nets.append(
+                            ipaddress.IPv4Network(f"{ip.ip}/24", strict=False)
+                        )
 
         if not nets:
             return None
