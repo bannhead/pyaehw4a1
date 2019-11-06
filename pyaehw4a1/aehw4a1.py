@@ -1,7 +1,6 @@
 #!/usr/bin/python3.7
 
 import sys
-import json
 import asyncio
 import ipaddress
 
@@ -62,7 +61,7 @@ class AehW4a1:
 
         if data_start_pos:
             result = await self._bits_value(packet_type, pure_bytes, data_start_pos)
-            return json.loads(result)
+            return result
 
         raise Exception(
             f"Unknown packet type {packet_type}: {pure_bytes.hex()}"
@@ -89,7 +88,7 @@ class AehW4a1:
                 for field in data_packet.value:
                     result[field.name] = binary_data[(field.offset - 1):
                                         (field.offset + field.length - 1)]
-                return json.dumps(result)
+                return result
 
         raise Exception(f"Unknown data type {packet_type}: {binary_data}")
 
