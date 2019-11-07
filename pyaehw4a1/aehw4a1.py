@@ -1,5 +1,3 @@
-#!/usr/bin/python3.7
-
 import sys
 import asyncio
 import ipaddress
@@ -26,10 +24,14 @@ class AehW4a1:
         if not self._host:
             raise Exception("Host required")
         
+        try:
+            ipaddress.IPv4Network(self._host)
+        except ValueError:
+            raise Exception(f"Invalid IP address: {self._host}")
+            
         for name, member in ReadCommand.__members__.items():
             if command == name:
                 return await self._read_command(member)
-
         for name, member in UpdateCommand.__members__.items():
             if command == name:
                 if command == "temp_to_F":
@@ -46,7 +48,6 @@ class AehW4a1:
     async def _update_command(self, command):
         pure_bytes = await self._send_recv_packet(command)
         packet_type = await self._packet_type(pure_bytes)
-
         if (await self._check_response(packet_type, pure_bytes)):
             return True
 
@@ -58,7 +59,6 @@ class AehW4a1:
         pure_bytes = await self._send_recv_packet(command)
         packet_type = await self._packet_type(pure_bytes)
         data_start_pos = await self._check_response(packet_type, pure_bytes)
-
         if data_start_pos:
             result = await self._bits_value(packet_type, pure_bytes, data_start_pos)
             return result
@@ -108,7 +108,6 @@ class AehW4a1:
                         )
 
                 return len(response_packet.value)
-
         return False
 
     async def discovery(self, full=None):
@@ -133,9 +132,8 @@ class AehW4a1:
                         nets.append(
                             ipaddress.IPv4Network(f"{ip.ip}/24", strict=False)
                         )
-
-        if not nets:
-            return None
+        if not nets:        
+            raise Exception("No networks available")
 
         acs = []
         out_queue = asyncio.Queue()
@@ -146,13 +144,11 @@ class AehW4a1:
             tasks = [asyncio.create_task(self._task_master(net, task_queue, scan_completed))]
             for _ in range(MAX_NUMBER_WORKERS):
                 tasks.append(asyncio.create_task(self._task_worker(task_queue, out_queue)))         
-
             await scan_completed.wait()
             await task_queue.join()
             for task in tasks:
                 task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
-
             if out_queue.qsize() and not self._full:
                 break
 
