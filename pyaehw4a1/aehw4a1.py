@@ -76,7 +76,7 @@ class AehW4a1:
         else:
             writer.write(command.value)
             await writer.drain()
-            data = await reader.readline()
+            data = await reader.read(100)
             return data
 
     async def _bits_value(self, packet_type, pure_bytes, data_pos):
