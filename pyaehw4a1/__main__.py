@@ -5,6 +5,7 @@ import json
 from . import aehw4a1
 from .commands import UpdateCommand
 from .commands import ReadCommand
+from .exceptions import *
 
 def main():
     parser = argparse.ArgumentParser("aehw4a1")
@@ -19,6 +20,9 @@ def main():
                             help='IP of AC')
     comm_parser.add_argument('--command', '-c', action='store', required=False,
                             help='List on implemented commands on README.md')
+    comm_parser = subs.add_parser('check', help='test for AC presence')
+    comm_parser.add_argument('--host', action='store', required=True,
+                            help='IP of AC')
 
     args = parser.parse_args()
 
@@ -42,7 +46,12 @@ def main():
                 parsed = asyncio.run(client.command("status_102_0"))
                 print("AC",args.host,command,":\n",json.dumps(parsed, indent=4, sort_keys=False))
         else:
-            raise Exception("Unknown command: {0}".format(command))
-
+            raise UnkCmdError("Unknown command: {0}".format(command))
+            
+    elif args.choise == "check":
+        client = aehw4a1.AehW4a1(args.host)
+        if asyncio.run(client.check()):
+            print("Found!")
+            
 if __name__ == "__main__":
     main()

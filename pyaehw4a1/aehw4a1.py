@@ -8,6 +8,7 @@ from .commands import ReadCommand
 from .commands import UpdateCommand
 from .responses import ResponsePacket
 from .responses import DataPacket
+from .exceptions import *
 
 
 MAX_NUMBER_WORKERS = 200
@@ -20,14 +21,37 @@ class AehW4a1:
         else:
             self._host = host
 
-    async def command(self, command):
+    async def check(self):
         if not self._host:
-            raise Exception("Host required")
+            raise ConnectionError("Host required")
         
         try:
             ipaddress.IPv4Network(self._host)
         except ValueError:
-            raise Exception(f"Invalid IP address: {self._host}")
+            raise ConnectionError(f"Invalid IP address: {self._host}") from None
+        
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(self._host, 8888), timeout = 1)
+        except:
+            raise ConnectionError(f"AC unavailable at {self._host}") from None
+
+        writer.write(bytes("AT+XMV", 'utf-8'))
+        await writer.drain()
+        data = await reader.readline()
+        if bytes("+XMV:", 'utf-8') in data:
+            return True
+            
+        raise ConnectionError(f"Unknown device {self._host}")
+
+    async def command(self, command):
+        if not self._host:
+            raise ConnectionError("Host required")
+        
+        try:
+            ipaddress.IPv4Network(self._host)
+        except ValueError:
+            raise ConnectionError(f"Invalid IP address: {self._host}") from None
             
         for name, member in ReadCommand.__members__.items():
             if command == name:
@@ -43,7 +67,7 @@ class AehW4a1:
                 else:
                     return await self._update_command(member)
 
-        raise Exception(f"Not yet implemented: {command}")
+        raise UnkCmdError(f"Not yet implemented: {command}")
 
     async def _update_command(self, command):
         pure_bytes = await self._send_recv_packet(command)
@@ -51,7 +75,7 @@ class AehW4a1:
         if (await self._check_response(packet_type, pure_bytes)):
             return True
 
-        raise Exception(
+        raise UnkPacketError(
             f"Unknown packet type {packet_type}: {pure_bytes.hex()}"
             )
 
@@ -63,7 +87,7 @@ class AehW4a1:
             result = await self._bits_value(packet_type, pure_bytes, data_start_pos)
             return result
 
-        raise Exception(
+        raise UnkPacketError(
             f"Unknown packet type {packet_type}: {pure_bytes.hex()}"
             )
 
@@ -72,7 +96,7 @@ class AehW4a1:
             reader, writer = await asyncio.wait_for(
                 asyncio.open_connection(self._host, 8888), timeout = 1)
         except:
-            raise Exception("AC unavailable")
+            raise ConnectionError(f"AC unavailable at {self._host}") from None
         else:
             writer.write(command.value)
             await writer.drain()
@@ -90,7 +114,7 @@ class AehW4a1:
                                         (field.offset + field.length - 1)]
                 return result
 
-        raise Exception(f"Unknown data type {packet_type}: {binary_data}")
+        raise UnkDataError(f"Unknown data type {packet_type}: {binary_data}")
 
     async def _packet_type(self, string):
         type = int(string[13:14].hex(),16)
@@ -103,7 +127,7 @@ class AehW4a1:
             if packet_type in response_packet.name:
                 if response_packet.value not in pure_bytes:
 
-                    raise Exception(
+                    raise WrongRespError(
                         f"Wrong response for type {packet_type}: {pure_bytes.hex()}"
                         )
 
@@ -116,7 +140,7 @@ class AehW4a1:
         elif full == True:
             self._full = True
         else:
-            raise Exception("Optional argument for discovery is: True")
+            raise WrongArgError("Optional argument for discovery is: True")
 
         nets = []
         adapters = ifaddr.get_adapters()
@@ -133,7 +157,7 @@ class AehW4a1:
                             ipaddress.IPv4Network(f"{ip.ip}/24", strict=False)
                         )
         if not nets:        
-            raise Exception("No networks available")
+            raise NoNetworksError("No networks available")
 
         acs = []
         out_queue = asyncio.Queue()
