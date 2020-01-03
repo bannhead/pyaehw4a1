@@ -44,6 +44,29 @@ class AehW4a1:
             
         raise ConnectionError(f"Unknown device {self._host}")
 
+    async def version(self):
+        if not self._host:
+            raise ConnectionError("Host required")
+        
+        try:
+            ipaddress.IPv4Network(self._host)
+        except ValueError:
+            raise ConnectionError(f"Invalid IP address: {self._host}") from None
+        
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(self._host, 8888), timeout = 1)
+        except:
+            raise ConnectionError(f"AC unavailable at {self._host}") from None
+
+        writer.write(bytes("AT+XMV", 'utf-8'))
+        await writer.drain()
+        data = await reader.readline()
+        if bytes("+XMV:", 'utf-8') in data:
+            return data
+            
+        raise ConnectionError(f"Unknown device {self._host}")
+
     async def command(self, command):
         if not self._host:
             raise ConnectionError("Host required")
@@ -190,7 +213,7 @@ class AehW4a1:
             ip = (await task_queue.get())
             try:
                 reader, writer = await asyncio.wait_for(
-                    asyncio.open_connection(ip, 8888), timeout = 0.5)
+                    asyncio.open_connection(ip, 8888), timeout = 1)
             except:
                 pass
             else:

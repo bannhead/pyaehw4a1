@@ -5,6 +5,9 @@ Python module and client for Hisense AEH-W4A1 wifi module
 ## Usage
 ### Intranet discovery
     python -m pyaehw4a1 discovery (--full)
+    
+### XM version
+    python -m pyaehw4a1 version --host IP_ADDRESS
 
 ### Read status
     python -m pyaehw4a1 AC --host IP_ADDRESS
@@ -32,6 +35,7 @@ Python module and client for Hisense AEH-W4A1 wifi module
 - hor_swing
 - temp_to_F
 - temp_to_C
+- status_(3_0, 3_1, 7_1, 10_4, 102_0, 102_64)
 
 
 ## Note

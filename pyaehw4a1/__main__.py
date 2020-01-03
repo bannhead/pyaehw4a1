@@ -23,7 +23,10 @@ def main():
     comm_parser = subs.add_parser('check', help='test for AC presence')
     comm_parser.add_argument('--host', action='store', required=True,
                             help='IP of AC')
-
+    comm_parser = subs.add_parser('version', help='XMVersion')
+    comm_parser.add_argument('--host', action='store', required=True,
+                            help='IP of AC')
+                            
     args = parser.parse_args()
 
     if args.choise == "discovery":
@@ -47,11 +50,15 @@ def main():
                 print("AC",args.host,command,":\n",json.dumps(parsed, indent=4, sort_keys=False))
         else:
             raise UnkCmdError("Unknown command: {0}".format(command))
-            
+
     elif args.choise == "check":
         client = aehw4a1.AehW4a1(args.host)
         if asyncio.run(client.check()):
             print("Found!")
-            
+
+    elif args.choise == "version":
+        client = aehw4a1.AehW4a1(args.host)
+        print(asyncio.run(client.version()))
+
 if __name__ == "__main__":
     main()
