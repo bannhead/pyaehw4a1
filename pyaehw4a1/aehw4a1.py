@@ -32,7 +32,7 @@ class AehW4a1:
         
         try:
             reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(self._host, 8888), timeout = 1)
+                asyncio.open_connection(self._host, 8888), timeout = 2)
         except:
             raise ConnectionError(f"AC unavailable at {self._host}") from None
 
@@ -55,7 +55,7 @@ class AehW4a1:
         
         try:
             reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(self._host, 8888), timeout = 1)
+                asyncio.open_connection(self._host, 8888), timeout = 2)
         except:
             raise ConnectionError(f"AC unavailable at {self._host}") from None
 
@@ -117,7 +117,7 @@ class AehW4a1:
     async def _send_recv_packet(self, command):
         try:
             reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(self._host, 8888), timeout = 1)
+                asyncio.open_connection(self._host, 8888), timeout = 2)
         except:
             raise ConnectionError(f"AC unavailable at {self._host}") from None
         else:
@@ -213,7 +213,7 @@ class AehW4a1:
             ip = (await task_queue.get())
             try:
                 reader, writer = await asyncio.wait_for(
-                    asyncio.open_connection(ip, 8888), timeout = 1)
+                    asyncio.open_connection(ip, 8888), timeout = 2)
             except:
                 pass
             else:
