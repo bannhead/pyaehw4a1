@@ -39,6 +39,8 @@ class AehW4a1:
         writer.write(bytes("AT+XMV", 'utf-8'))
         await writer.drain()
         data = await reader.readline()
+        writer.close()
+        await writer.wait_closed()
         if bytes("+XMV:", 'utf-8') in data:
             return True
             
@@ -62,6 +64,8 @@ class AehW4a1:
         writer.write(bytes("AT+XMV", 'utf-8'))
         await writer.drain()
         data = await reader.readline()
+        writer.close()
+        await writer.wait_closed()
         if bytes("+XMV:", 'utf-8') in data:
             return data
             
@@ -123,7 +127,12 @@ class AehW4a1:
         else:
             writer.write(command.value)
             await writer.drain()
-            data = await reader.read(100)
+            try:
+                data = await asyncio.wait_for(reader.read(100), timeout = 5)
+            except:
+                raise ConnectionError(f"AC {self._host} does not respond") from None
+            writer.close()
+            await writer.wait_closed()
             return data
 
     async def _bits_value(self, packet_type, pure_bytes, data_pos):
@@ -220,6 +229,8 @@ class AehW4a1:
                 writer.write(bytes("AT+XMV", 'utf-8'))
                 await writer.drain()
                 data = await reader.readline()
+                writer.close()
+                await writer.wait_closed()
                 if bytes("+XMV:", 'utf-8') in data:
                     out_queue.put_nowait(ip)
             finally:
