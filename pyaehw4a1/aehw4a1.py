@@ -119,25 +119,30 @@ class AehW4a1:
             )
 
     async def _send_recv_packet(self, command):
-        try:
-            reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(self._host, 8888), timeout = 2)
-        except:
-            raise ConnectionError(f"AC unavailable at {self._host}") from None
+        for i in range(3):
+            try:
+                reader, writer = await asyncio.wait_for(
+                    asyncio.open_connection(self._host, 8888), timeout = 2)
+            except:
+                pass
+            break
         else:
-            for i in range(3):
-                writer.write(command.value)
-                await writer.drain()
-                try:
-                    data = await asyncio.wait_for(reader.read(100), timeout = 5)
-                except:
-                    pass
-                writer.close()
-                await writer.wait_closed()
-                break
-            else:
-                raise ConnectionError(f"AC at {self._host} does not respond in 5 seconds") from None
-            return data
+            raise ConnectionError(f"AC unavailable") from None
+        
+        for i in range(3):
+            writer.write(command.value)
+            await writer.drain()
+            try:
+                data = await asyncio.wait_for(reader.read(100), timeout = 3)
+            except:
+                pass
+            writer.close()
+            await writer.wait_closed()
+            break
+        else:
+            raise ConnectionError(f"AC does not respond") from None
+
+        return data
 
     async def _bits_value(self, packet_type, pure_bytes, data_pos):
         result = {}
