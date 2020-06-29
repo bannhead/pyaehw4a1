@@ -125,14 +125,18 @@ class AehW4a1:
         except:
             raise ConnectionError(f"AC unavailable at {self._host}") from None
         else:
-            writer.write(command.value)
-            await writer.drain()
-            try:
-                data = await asyncio.wait_for(reader.read(100), timeout = 5)
-            except:
-                raise ConnectionError(f"AC {self._host} does not respond") from None
-            writer.close()
-            await writer.wait_closed()
+            for i in range(3):
+                writer.write(command.value)
+                await writer.drain()
+                try:
+                    data = await asyncio.wait_for(reader.read(100), timeout = 5)
+                except:
+                    pass
+                writer.close()
+                await writer.wait_closed()
+                break
+            else:
+                raise ConnectionError(f"AC at {self._host} does not respond in 5 seconds") from None
             return data
 
     async def _bits_value(self, packet_type, pure_bytes, data_pos):
