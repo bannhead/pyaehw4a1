@@ -125,7 +125,8 @@ class AehW4a1:
                     asyncio.open_connection(self._host, 8888), timeout = 2)
             except:
                 pass
-            break
+            else:
+                break
         else:
             raise ConnectionError(f"AC unavailable") from None
         
@@ -134,11 +135,12 @@ class AehW4a1:
             await writer.drain()
             try:
                 data = await asyncio.wait_for(reader.read(100), timeout = 3)
+                writer.close()
+                await writer.wait_closed()
             except:
                 pass
-            writer.close()
-            await writer.wait_closed()
-            break
+            else:
+                break
         else:
             raise ConnectionError(f"AC does not respond") from None
 
