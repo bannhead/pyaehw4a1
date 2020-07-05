@@ -119,7 +119,7 @@ class AehW4a1:
             )
 
     async def _send_recv_packet(self, command):
-        for i in range(3):
+        for i in range(5):
             try:
                 reader, writer = await asyncio.wait_for(
                     asyncio.open_connection(self._host, 8888), timeout = 2)
@@ -130,11 +130,11 @@ class AehW4a1:
         else:
             raise ConnectionError(f"AC unavailable") from None
         
-        for i in range(3):
+        for i in range(5):
             writer.write(command.value)
             await writer.drain()
             try:
-                data = await asyncio.wait_for(reader.read(100), timeout = 3)
+                data = await asyncio.wait_for(reader.read(100), timeout = 2)
                 writer.close()
                 await writer.wait_closed()
             except:
